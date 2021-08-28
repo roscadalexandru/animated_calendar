@@ -12,6 +12,7 @@ class CalendarWidget extends StatefulWidget {
     required this.initialDate,
     this.onPreviousWeek,
     this.onNextWeek,
+    this.onSelect,
     this.monthAlignment = Alignment.center,
     this.showArrows = true,
     this.canSwipe = true,
@@ -20,6 +21,7 @@ class CalendarWidget extends StatefulWidget {
   final DateTime initialDate;
   final ValueChanged<List<DateTime>>? onPreviousWeek;
   final ValueChanged<List<DateTime>>? onNextWeek;
+  final ValueChanged<DateTime>? onSelect;
   final Alignment monthAlignment;
   final bool showArrows;
   final bool canSwipe;
@@ -79,6 +81,7 @@ class _CalendarWidgetState extends State<CalendarWidget>
     setState(() {
       _selectedDate = date;
     });
+    widget.onSelect?.call(date);
   }
 
   void updateDays() {
@@ -119,8 +122,8 @@ class _CalendarWidgetState extends State<CalendarWidget>
     double interval = 1 / _days.length;
 
     return List.from(_days.map((date) {
-      late double intervalBegin;
-      late double intervalEnd;
+      double intervalBegin;
+      double intervalEnd;
 
       switch (weekState) {
         case WeekState.previous:
@@ -140,7 +143,6 @@ class _CalendarWidgetState extends State<CalendarWidget>
           Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
         parent: _animationController,
         curve: Interval(intervalBegin, intervalEnd),
-        // curve: Curves.easeIn,
       ));
       return AnimatedBuilder(
         animation: _animationController,
@@ -182,7 +184,7 @@ class _CalendarWidgetState extends State<CalendarWidget>
                 Expanded(
                   child: Align(
                       alignment: widget.monthAlignment,
-                      child: MonthHeader(date: _days.first)),
+                      child: MonthHeader(dates: _days)),
                 ),
                 Visibility(
                   visible: widget.showArrows,
